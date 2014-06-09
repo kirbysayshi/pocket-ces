@@ -5,6 +5,6 @@ module.exports = function(pkt, x, y, rad) {
     'collidable-group-a': null,
     'collision-information': null,
     'health': null,
-    'emits-death-particles': { count: 5, force: 15 }
+    'emits-death-particles': { count: 50, force: 15 }
   })
 }
