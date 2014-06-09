@@ -37,3 +37,6 @@ p.entity(null, { 'ctx-2d': null })
 p.tick(16);
 
 window.p = p;
+p.go = function() {
+  (function yeah() { p.tick(16); requestAnimationFrame(yeah) }())
+}
