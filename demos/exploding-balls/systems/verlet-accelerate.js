@@ -1,4 +1,4 @@
-var v2 = require('../v2');
+var v2 = require('../../v2');
 
 exports.name = 'verlet-accelerate';
 exports.reqs = ['verlet-position'];

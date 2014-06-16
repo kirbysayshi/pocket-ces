@@ -1,5 +1,5 @@
 
-var v2 = require('../v2');
+var v2 = require('../../v2');
 
 // You could put all of these into separate files, but it's not entirely
 // worth it since you'd be duplicating the name of each in the file

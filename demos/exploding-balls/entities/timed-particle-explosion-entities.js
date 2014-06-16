@@ -1,4 +1,4 @@
-var v2 = require('../v2');
+var v2 = require('../../v2');
 
 module.exports = function(pkt, x, y, numParticles, force) {
 
