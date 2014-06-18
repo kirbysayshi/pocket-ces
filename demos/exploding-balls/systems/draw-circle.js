@@ -3,8 +3,7 @@ exports.reqs = ['radius', 'verlet-position', 'health'];
 exports.action = function action(pkt, entities, circles, positions, health) {
 
   // We need this for side effects, but not for the initial system query.
-  var ctx2d = pkt.dfcn('ctx-2d');
-  ctx2d = ctx2d[Object.keys(ctx2d)[0]];
+  var ctx2d = pkt.firstData('ctx-2d')
 
   for (var i = 0, len = entities.length, e, circle, position; i < len; i++) {
     e = entities[i];

@@ -4,8 +4,7 @@ exports.name = 'gravity-well';
 exports.reqs = ['verlet-position', 'radius'];
 exports.action = function(pkt, entities, positions) {
 
-  var ctx2d = pkt.dfcn('ctx-2d');
-  ctx2d = ctx2d[Object.keys(ctx2d)[0]];
+  var ctx2d = pkt.firstData('ctx-2d')
   var center = v2(ctx2d.cvs.width/2, ctx2d.cvs.height/2);
   var dir = v2(0, 0);
 

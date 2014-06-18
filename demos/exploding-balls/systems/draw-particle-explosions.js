@@ -3,8 +3,7 @@ exports.reqs = ['verlet-position', 'timed-life', 'particle-explosion-fragment'];
 exports.action = function action(pkt, entities, positions, timedLife) {
 
   // We need this for side effects, but not for the initial system query.
-  var ctx2d = pkt.dfcn('ctx-2d');
-  ctx2d = ctx2d[Object.keys(ctx2d)[0]];
+  var ctx2d = pkt.firstData('ctx-2d');
 
   for (var i = 0, len = entities.length; i < len; i++) {
     var e = entities[i];
