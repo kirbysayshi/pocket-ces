@@ -50,4 +50,19 @@ module.exports = function(p) {
 
   p.cmp('particle-explosion-fragment', function() {});
 
+  p.cmp('keyboard-state', function(cmp, opts) {
+    var target = opts.target || document;
+    target.addEventListener('keydown', keydown, false)
+    target.addEventListener('keyup', keyup, false)
+
+    cmp.down = {};
+
+    function keydown(e) {
+      cmp.down[e.which] = true;
+    }
+
+    function keyup(e) {
+      cmp.down[e.which] = false;
+    }
+  })
 }
