@@ -100,7 +100,7 @@ p.entity(null, {
   'position': { x : 20 },
   'shape' : null,
   'thrust' : null,
-  'player-01-controlled' : null
+  'player-controlled' : null
 });
 
 //player 2
@@ -110,57 +110,73 @@ p.entity(null, {
   'position': { x : ((p.firstData('ctx').cvs.width/2) - 40) },
   'shape' : null,
   'thrust' : null,
-  'player-02-controlled' : null
+  'player-controlled' : null
 });
 
 //
 //systems
 //
 p.sysFromObj({
-  name : 'input-accelerate-01',
-  reqs : ['position', 'thrust', 'player-01-controlled'],
-  actionEach : function(pkt, entity, pos, thrust) {
-    var input = pkt.firstData('input-manager');
+  name : 'input-accelerate',
+  reqs :['position', 'thrust', 'player-controlled'],
+  action : function(pkt, entities, positions, thrusts) {
+
+    var player1 = entities[0],
+        player2 = entities[1],
+        input = pkt.firstData('input-manager');
 
     //up - w
-    if (input.pressed[87]) { pos.acc.y = -thrust.value; }
-    //else { pos.vel.y = 0; pos.acc.y = 0; }
+    if (input.pressed[87]) {
+      positions[player1.id].acc.y = -thrusts[player1.id].value;
+    }
 
     //down - s
-    else if (input.pressed[83]) { pos.acc.y = thrust.value; }
-    //else { pos.vel.y = 0; pos.acc.y = 0; }
+    else if (input.pressed[83]) {
+      positions[player1.id].acc.y = thrusts[player1.id].value;
+    }
 
     //left - a
-    else if (input.pressed[65]) { pos.acc.x = -thrust.value; }
-    //else { pos.vel.x = 0; pos.acc.x = 0; }
+    else if (input.pressed[65]) {
+      positions[player1.id].acc.x = -thrusts[player1.id].value; 
+    }
 
     //right - d
-    else if (input.pressed[68]) { pos.acc.x = thrust.value; }
-    //else { pos.vel.x = 0; pos.acc.x = 0; }
-    else {
-      pos.vel.x = 0; pos.acc.x = 0; 
-      pos.vel.y = 0; pos.acc.y = 0; 
+    else if (input.pressed[68]) { 
+      positions[player1.id].acc.x = thrusts[player1.id].value; 
     }
-  }
-});
-
-p.sysFromObj({
-  name : 'input-accelerate-02',
-  reqs : ['position', 'thrust', 'player-02-controlled'],
-  actionEach : function(pkt, entity, pos, thrust) {
-    var input = pkt.firstData('input-manager');
+    else {
+      positions[player1.id].vel.x = 0;
+      positions[player1.id].vel.y = 0;
+      positions[player1.id].acc.x = 0; 
+      positions[player1.id].acc.y = 0; 
+    }
 
     //up - i
-    if (input.pressed[73]){ pos.acc.y = -thrust.value; }
+    if (input.pressed[73]) {
+      positions[player2.id].acc.y = -thrusts[player2.id].value;
+    }
+
     //down - k
-    else if (input.pressed[75]){ pos.acc.y = thrust.value; }
+    else if (input.pressed[75]) {
+      positions[player2.id].acc.y = thrusts[player2.id].value;
+    }
 
     //left - j
-    else if (input.pressed[74]){ pos.acc.x = -thrust.value; }
+    else if (input.pressed[74]) {
+      positions[player2.id].acc.x = -thrusts[player2.id].value;
+    }
 
     //right - l
-    else if (input.pressed[76]){ pos.acc.x = thrust.value; }
-    else { pos.vel.x = 0; pos.acc.x = 0; pos.vel.y = 0; pos.acc.y = 0; }
+    else if (input.pressed[76]){
+      positions[player2.id].acc.x = thrusts[player2.id].value;
+    }
+    else {
+      positions[player2.id].vel.x = 0;
+      positions[player2.id].acc.x = 0;
+      positions[player2.id].vel.y = 0;
+      positions[player2.id].acc.y = 0;
+    }  
+
   }
 });
 
