@@ -6,18 +6,18 @@ var p = new Pocket();
 //
 p.cmp('ctx', function(cmp, opts) {
     
-  //a little css
+  // a little css
   var style = document.createElement('style');
   style.type = 'text/css';
   style.appendChild(document.createTextNode("html,body {width: 100%; height: 100%} * { margin: 0; padding: 0 }"));
   document.head.appendChild(style);
 
-  //setup the canvas
+  // setup the canvas
   cmp.cvs = document.createElement('canvas');
   cmp.ctx = cmp.cvs.getContext('2d');
   document.body.appendChild(cmp.cvs);
 
-  //super hd awesome canvas
+  // super hd awesome canvas
   var width  = window.innerWidth;
   var height = window.innerHeight;
 
@@ -43,8 +43,8 @@ p.cmp('ctx', function(cmp, opts) {
   }
 
   cmp.center = { 
-    x: (dpr !== bsr) ? cmp.cvs.width / 4  : cmp.cvs.width,
-    y: (dpr !== bsr) ? cmp.cvs.height / 4 : cmp.cvs.height
+    x: (dpr !== bsr) ? cmp.cvs.width / 4  : cmp.cvs.width / 2,
+    y: (dpr !== bsr) ? cmp.cvs.height / 4 : cmp.cvs.height / 2
   }
  
 });
@@ -87,13 +87,13 @@ p.cmp('thrust', function(cmp, opts) {
 });
 
 //
-//entities
+// entities
 //
 
-//rendering context and DOM setup
+// rendering context and DOM setup
 p.entity(null, { 'ctx' : null });
 
-//player 1
+// player 1
 p.entity(null, { 
   'color': { color: '#00bfff' },
   'input-manager' : null,
@@ -103,7 +103,7 @@ p.entity(null, {
   'player-controlled' : null
 });
 
-//player 2
+// player 2
 p.entity(null, {
   'color': { color: "#ffb05c" },
   'input-manager' : null,
@@ -114,7 +114,7 @@ p.entity(null, {
 });
 
 //
-//systems
+// systems
 //
 p.sysFromObj({
   name : 'input-accelerate',
@@ -125,22 +125,22 @@ p.sysFromObj({
         player2 = entities[1],
         input = pkt.firstData('input-manager');
 
-    //up - w
+    // up - w
     if (input.pressed[87]) {
       positions[player1.id].acc.y = -thrusts[player1.id].value;
     }
 
-    //down - s
+    // down - s
     else if (input.pressed[83]) {
       positions[player1.id].acc.y = thrusts[player1.id].value;
     }
 
-    //left - a
+    // left - a
     else if (input.pressed[65]) {
       positions[player1.id].acc.x = -thrusts[player1.id].value; 
     }
 
-    //right - d
+    // right - d
     else if (input.pressed[68]) { 
       positions[player1.id].acc.x = thrusts[player1.id].value; 
     }
@@ -151,22 +151,22 @@ p.sysFromObj({
       positions[player1.id].acc.y = 0; 
     }
 
-    //up - i
+    // up - i
     if (input.pressed[73]) {
       positions[player2.id].acc.y = -thrusts[player2.id].value;
     }
 
-    //down - k
+    // down - k
     else if (input.pressed[75]) {
       positions[player2.id].acc.y = thrusts[player2.id].value;
     }
 
-    //left - j
+    // left - j
     else if (input.pressed[74]) {
       positions[player2.id].acc.x = -thrusts[player2.id].value;
     }
 
-    //right - l
+    // right - l
     else if (input.pressed[76]){
       positions[player2.id].acc.x = thrusts[player2.id].value;
     }
@@ -180,7 +180,7 @@ p.sysFromObj({
   }
 });
 
-//update positions based on accels
+// update positions based on accels
 p.sysFromObj({
   name : 'handle-movement',
   reqs : ['position'],
@@ -192,7 +192,7 @@ p.sysFromObj({
   }
 });
 
-//check bounds and 'bounce' if bounds hit
+// check bounds and 'bounce' if bounds hit
 p.sysFromObj({
   name : 'physics-bounds-check',
   reqs : ['position', 'shape'],
@@ -224,7 +224,7 @@ p.sysFromObj({
   }
 });
 
-//must clear canvas here, otherwise not every object will show
+// must clear canvas here, otherwise not every object will show
 p.sysFromObj({
   name : 'renderer-clear',
   reqs : ['ctx'],
