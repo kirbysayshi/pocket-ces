@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "demos": "beefy demos/exploding-balls/index.js:demos/exploding-balls/bundle.js demos/asteroids/index.js:demos/asteroids/bundle.js"
+    "demos": "beefy demos/exploding-balls/index.js:demos/exploding-balls/bundle.js demos/asteroids/index.js:demos/asteroids/bundle.js demos/dodge/index.js:demos/dodge/bundle.js"
   },
   "keywords": [
     "ces",
