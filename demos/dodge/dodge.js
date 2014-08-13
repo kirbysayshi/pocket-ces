@@ -42,9 +42,10 @@ p.cmp('ctx', function(cmp, opts) {
     }
 
     cmp.center = { 
-        x: cmp.cvs.width / 4,
-        y: cmp.cvs.height / 4
-    };
+        x: (dpr !== bsr) ? cmp.cvs.width / 4  : cmp.cvs.width,
+        y: (dpr !== bsr) ? cmp.cvs.height / 4 : cmp.cvs.height
+    }
+ 
 });
 
 p.cmp('input-manager', function(cmp, opts) {
