@@ -459,8 +459,8 @@ p.sysFromObj({
     if (isWithin) {
       // TODO: make this actually reset the game or something.
       var center = p.firstData('ctx-2d').center;
-      shipPos.cpos.x = shipPos.ppos.x = center.x;
-      shipPos.cpos.y = shipPos.ppos.y = center.y;
+      v2.copy(shipPos.cpos, center);
+      v2.copy(shipPos.ppos, center);
     }
   }
 })
