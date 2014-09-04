@@ -16,7 +16,8 @@
   "author": "Drew Petersen <kirbysayshi@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "beefy": "^1.1.0",
-    "browserify": "^4.1.7"
+    "beefy": "~2.1.1",
+    "browserify": "^4.1.7",
+    "marked": "~0.3.2"
   }
 }
