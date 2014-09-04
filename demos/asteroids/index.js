@@ -392,8 +392,8 @@ function testPointShapeCollision(shapeA, positionA, shapeB, positionB) {
     isWithin = isWithin || pnpoly(
       shapeB.points.length,
       shapeB.worldXS, shapeB.worldYS,
-      shapeA.points[i].x + positionA.cpos.x,
-      shapeA.points[i].y + positionA.cpos.y
+      shapeA.worldXS[0],
+      shapeA.worldYS[0]
     )
 
     if (isWithin) break;
@@ -403,8 +403,8 @@ function testPointShapeCollision(shapeA, positionA, shapeB, positionB) {
     isWithin = isWithin || pnpoly(
       shapeA.points.length,
       shapeA.worldXS, shapeA.worldYS,
-      shapeB.points[i].x + positionB.cpos.x,
-      shapeB.points[i].y + positionB.cpos.x
+      shapeB.worldXS[0],
+      shapeB.worldYS[0]
     )
 
     if (isWithin) break;
@@ -413,35 +413,43 @@ function testPointShapeCollision(shapeA, positionA, shapeB, positionB) {
   return isWithin;
 }
 
-function precomputeWorldCoordinates(shape, position) {
+function precomputeWorldCoordinates(shape, position, rotation) {
+  var sin = Math.sin(rotation.angle);
+  var cos = Math.cos(rotation.angle);
+
   for (var i = 0; i < shape.points.length; i++) {
     var point = shape.points[i];
 
     // Optimize access to all the x components and all the ys,
     // and precompute the "absolute" or world coordinates of all
     // the relative points.
-    shape.worldXS[i] = point.x + position.cpos.x;
-    shape.worldYS[i] = point.y + position.cpos.y;
+    // cos/sin are used to transform the points around their center.
+    // Normally `-` is used in both, but because y+ is downwards, we
+    // must reverse the sign.
+    shape.worldXS[i] = (point.x*cos - point.y*sin) + position.cpos.x;
+    shape.worldYS[i] = (point.y*cos + point.x*sin) + position.cpos.y;
   }
 }
 
 p.sysFromObj({
   name: 'asteroid-ship-collider',
-  reqs: ['point-shape', 'verlet-position', 'asteroid'],
-  action: function(pkt, entities, shapes, positions) {
+  reqs: ['point-shape', 'verlet-position', 'rotation', 'asteroid'],
+  action: function(pkt, entities, shapes, positions, rotations) {
     var ship = pkt.firstEntity('ship');
     var shipShape = pkt.dataFor(ship, 'point-shape');
     var shipPos = pkt.dataFor(ship, 'verlet-position');
-    precomputeWorldCoordinates(shipShape, shipPos);
+    var shipRotation = pkt.dataFor(ship, 'rotation');
+    precomputeWorldCoordinates(shipShape, shipPos, shipRotation);
 
-    var asteroid, shape, position;
+    var asteroid, shape, position, rotation;
     var isWithin = false;
 
     for (var i = 0; i < entities.length; i++) {
       asteroid = entities[i];
       shape = shapes[asteroid.id];
       position = positions[asteroid.id];
-      precomputeWorldCoordinates(shape, position);
+      rotation = rotations[asteroid.id];
+      precomputeWorldCoordinates(shape, position, rotation);
 
       isWithin = testPointShapeCollision(shape, position, shipShape, shipPos);
 
@@ -449,20 +457,23 @@ p.sysFromObj({
     }
 
     if (isWithin) {
-      console.log('ship is colliding with an asteroid!');
+      // TODO: make this actually reset the game or something.
+      var center = p.firstData('ctx-2d').center;
+      shipPos.cpos.x = shipPos.ppos.x = center.x;
+      shipPos.cpos.y = shipPos.ppos.y = center.y;
     }
   }
 })
 
 p.sysFromObj({
   name: 'asteroid-projectile-collider',
-  reqs: ['point-shape', 'verlet-position', 'asteroid'],
-  action: function(pkt, entities, shapes, positions) {
+  reqs: ['point-shape', 'verlet-position', 'rotation', 'asteroid'],
+  action: function(pkt, entities, shapes, positions, rotations) {
 
-    var projectiles = pkt.entitiesMatching('point-shape', 'verlet-position', 'projectile');
+    var projectiles = pkt.entitiesMatching('point-shape', 'verlet-position', 'rotation', 'projectile');
 
-    var asteroid, shape, position;
-    var projectile, projectileShape, projectilePosition;
+    var asteroid, shape, position, rotation;
+    var projectile, projectileShape, projectilePosition, projectileRotation;
     var isHit;
 
     for (var i = 0; i < entities.length; i++) {
@@ -470,13 +481,15 @@ p.sysFromObj({
       asteroid = entities[i];
       shape = shapes[asteroid.id];
       position = positions[asteroid.id];
-      precomputeWorldCoordinates(shape, position);
+      rotation = rotations[asteroid.id];
+      precomputeWorldCoordinates(shape, position, rotation);
 
       for (var j = 0; j < projectiles.length; j++) {
         projectile = projectiles[j];
         projectileShape = shapes[projectile.id];
         projectilePosition = positions[projectile.id];
-        precomputeWorldCoordinates(projectileShape, projectilePosition);
+        projectileRotation = rotations[projectile.id];
+        precomputeWorldCoordinates(projectileShape, projectilePosition, projectileRotation);
 
         isHit = testPointShapeCollision(projectileShape, projectilePosition, shape, position);
 
