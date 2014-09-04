@@ -75,14 +75,11 @@ p.cmp('verlet-position', function(cmp, opts) {
 p.cmp('point-shape', function(cmp, opts) {
   // points are expected to be {x, y} objects, like verlet-positions
   cmp.points = opts.points || [];
-  cmp.worldXS = [];
-  cmp.worldYS = [];
-  cmp.worldPoints = cmp.points.map(function(point, i) {
-    cmp.worldXS[i] = point.x;
-    cmp.worldYS[i] = point.y;
-    // Clone
-    return { x: point.x, y: point.y }
-  });
+  // These are simply here as a preallocation, since they'll be used
+  // often and there is no need to garbage collect them each time. It's
+  // expected that each time they are requred, they are updated manually.
+  cmp.worldXS = new Array(cmp.points.length)
+  cmp.worldYS = new Array(cmp.points.length);
 })
 
 p.cmp('bbox', function(cmp, opts) {
@@ -260,25 +257,6 @@ p.sysFromObj({
 })
 
 p.sysFromObj({
-  name: 'point-shape-coordinates',
-  reqs: ['point-shape', 'verlet-position'],
-  actionEach: function(pkt, entity, shape, position) {
-    var point, worldPoint;
-
-    for (var i = 0; i < shape.points.length; i++) {
-      point = shape.points[i];
-      worldPoint = shape.worldPoints[i];
-
-      // Optimize access to all the x components and all the ys,
-      // and precompute the "absolute" or world coordinates of all
-      // the relative points.
-      shape.worldXS[i] = worldPoint.x = point.x + position.cpos.x;
-      shape.worldYS[i] = worldPoint.y = point.y + position.cpos.y;
-    }
-  }
-})
-
-p.sysFromObj({
   name: 'point-shape-bounding-box-provider',
   reqs: ['point-shape', 'verlet-position', 'bbox'],
   actionEach: function(pkt, entity, shape, position, bbox) {
@@ -407,26 +385,26 @@ function pnpoly(nvert, vertx, verty, testx, testy) {
   return c;
 }
 
-function testPointShapeCollision(shapeDataA, shapeDataB) {
+function testPointShapeCollision(shapeA, positionA, shapeB, positionB) {
   var isWithin = false;
 
-  for (var i = 0; i < shapeDataA.worldPoints.length; i++) {
+  for (var i = 0; i < shapeA.points.length; i++) {
     isWithin = isWithin || pnpoly(
-      shapeDataB.points.length,
-      shapeDataB.worldXS, shapeDataB.worldYS,
-      shapeDataA.worldPoints[i].x,
-      shapeDataA.worldPoints[i].y
+      shapeB.points.length,
+      shapeB.worldXS, shapeB.worldYS,
+      shapeA.points[i].x + positionA.cpos.x,
+      shapeA.points[i].y + positionA.cpos.y
     )
 
     if (isWithin) break;
   }
 
-  for (var i = 0; i < shapeDataB.worldPoints.length; i++) {
+  for (var i = 0; i < shapeB.points.length; i++) {
     isWithin = isWithin || pnpoly(
-      shapeDataA.points.length,
-      shapeDataA.worldXS, shapeDataA.worldYS,
-      shapeDataB.worldPoints[i].x,
-      shapeDataB.worldPoints[i].y
+      shapeA.points.length,
+      shapeA.worldXS, shapeA.worldYS,
+      shapeB.points[i].x + positionB.cpos.x,
+      shapeB.points[i].y + positionB.cpos.x
     )
 
     if (isWithin) break;
@@ -435,21 +413,37 @@ function testPointShapeCollision(shapeDataA, shapeDataB) {
   return isWithin;
 }
 
+function precomputeWorldCoordinates(shape, position) {
+  for (var i = 0; i < shape.points.length; i++) {
+    var point = shape.points[i];
+
+    // Optimize access to all the x components and all the ys,
+    // and precompute the "absolute" or world coordinates of all
+    // the relative points.
+    shape.worldXS[i] = point.x + position.cpos.x;
+    shape.worldYS[i] = point.y + position.cpos.y;
+  }
+}
+
 p.sysFromObj({
   name: 'asteroid-ship-collider',
-  reqs: ['point-shape', 'asteroid'],
-  action: function(pkt, entities, shapes) {
+  reqs: ['point-shape', 'verlet-position', 'asteroid'],
+  action: function(pkt, entities, shapes, positions) {
     var ship = pkt.firstEntity('ship');
     var shipShape = pkt.dataFor(ship, 'point-shape');
+    var shipPos = pkt.dataFor(ship, 'verlet-position');
+    precomputeWorldCoordinates(shipShape, shipPos);
 
-    var asteroid, shape;
+    var asteroid, shape, position;
     var isWithin = false;
 
     for (var i = 0; i < entities.length; i++) {
       asteroid = entities[i];
       shape = shapes[asteroid.id];
+      position = positions[asteroid.id];
+      precomputeWorldCoordinates(shape, position);
 
-      isWithin = testPointShapeCollision(shape, shipShape);
+      isWithin = testPointShapeCollision(shape, position, shipShape, shipPos);
 
       if (isWithin) break;
     }
@@ -462,25 +456,29 @@ p.sysFromObj({
 
 p.sysFromObj({
   name: 'asteroid-projectile-collider',
-  reqs: ['point-shape', 'asteroid'],
-  action: function(pkt, entities, shapes) {
+  reqs: ['point-shape', 'verlet-position', 'asteroid'],
+  action: function(pkt, entities, shapes, positions) {
 
-    var projectiles = pkt.entitiesMatching('point-shape', 'projectile');
+    var projectiles = pkt.entitiesMatching('point-shape', 'verlet-position', 'projectile');
 
-    var asteroid, shape;
-    var projectile, projectileShape;
+    var asteroid, shape, position;
+    var projectile, projectileShape, projectilePosition;
     var isHit;
 
     for (var i = 0; i < entities.length; i++) {
       isHit = false;
       asteroid = entities[i];
       shape = shapes[asteroid.id];
+      position = positions[asteroid.id];
+      precomputeWorldCoordinates(shape, position);
 
       for (var j = 0; j < projectiles.length; j++) {
         projectile = projectiles[j];
         projectileShape = shapes[projectile.id];
+        projectilePosition = positions[projectile.id];
+        precomputeWorldCoordinates(projectileShape, projectilePosition);
 
-        isHit = testPointShapeCollision(projectileShape, shape);
+        isHit = testPointShapeCollision(projectileShape, projectilePosition, shape, position);
 
         if (isHit) break;
       }
