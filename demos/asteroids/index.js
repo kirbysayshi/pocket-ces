@@ -2,7 +2,7 @@
 var v2 = require('../v2');
 var Pocket = require('../../');
 
-var p = new Pocket();
+var pkt = new Pocket();
 
 ///////////////////////////////////////////////////////////////////////////////
 // Components
@@ -10,7 +10,7 @@ var p = new Pocket();
 
 // Keep in mind this is just the component (data) that provides the 2d
 // context, not the entity that can be manipulated or used in systems.
-p.cmp('ctx-2d', function(cmp, opts) {
+pkt.cmp('ctx-2d', function(cmp, opts) {
   cmp.cvs = document.querySelector(opts.cvs || '#c');
   cmp.ctx = cmp.cvs.getContext('2d');
   cmp.center = v2();
@@ -26,7 +26,7 @@ p.cmp('ctx-2d', function(cmp, opts) {
   }()))
 })
 
-p.cmp('game-config', function(cmp, opts) {
+pkt.cmp('game-config', function(cmp, opts) {
   cmp.MAX_POINTS_PER_ASTEROID_SHAPE = 10;
   cmp.MIN_POINTS_PER_ASTEROID_SHAPE = 10;
   cmp.MAX_ASTEROID_RADIUS = 60;
@@ -40,7 +40,7 @@ p.cmp('game-config', function(cmp, opts) {
 
 // This is a little weird, since it mutates itself! But it has to due to the
 // DOM event model. Otherwise we'd never know the state of keys.
-p.cmp('keyboard-state', function(cmp, opts) {
+pkt.cmp('keyboard-state', function(cmp, opts) {
   var target = opts.target || document;
   target.addEventListener('keydown', keydown, false)
   target.addEventListener('keyup', keyup, false)
@@ -64,7 +64,7 @@ p.cmp('keyboard-state', function(cmp, opts) {
   }
 })
 
-p.cmp('verlet-position', function(cmp, opts) {
+pkt.cmp('verlet-position', function(cmp, opts) {
   cmp.cpos = v2(opts.x || 0, opts.y || 0);
   cmp.ppos = v2(opts.x || 0, opts.y || 0);
   cmp.acel = opts.acel
@@ -72,7 +72,7 @@ p.cmp('verlet-position', function(cmp, opts) {
     : v2(0, 0);
 })
 
-p.cmp('point-shape', function(cmp, opts) {
+pkt.cmp('point-shape', function(cmp, opts) {
   // points are expected to be {x, y} objects, like verlet-positions
   cmp.points = opts.points || [];
   // These are simply here as a preallocation, since they'll be used
@@ -82,27 +82,27 @@ p.cmp('point-shape', function(cmp, opts) {
   cmp.worldYS = new Array(cmp.points.length);
 })
 
-p.cmp('bbox', function(cmp, opts) {
+pkt.cmp('bbox', function(cmp, opts) {
   cmp.width = 0;
   cmp.height = 0;
   cmp.upperLeft = v2();
   cmp.lowerRight = v2();
 })
 
-p.cmp('rotation', function(cmp, opts) {
+pkt.cmp('rotation', function(cmp, opts) {
   cmp.angle = opts.angle || 0;
   cmp.rate = opts.rate || 0;
 })
 
-p.cmp('thrust', function(cmp, opts) {
+pkt.cmp('thrust', function(cmp, opts) {
   cmp.force = opts.force || 1;
 })
 
-p.cmp('drag', function(cmp, opts) {
+pkt.cmp('drag', function(cmp, opts) {
   cmp.percentage = opts.percentage || 0.99;
 })
 
-p.cmp('projectile-launcher', function(cmp, opts) {
+pkt.cmp('projectile-launcher', function(cmp, opts) {
   cmp.launchForce = opts.launchForce || 1;
   cmp.limit = opts.limit || 10;
   cmp.actives = []; // Maybe?
@@ -113,15 +113,15 @@ p.cmp('projectile-launcher', function(cmp, opts) {
 ///////////////////////////////////////////////////////////////////////////////
 
 // The queryable entity to grab the component that holds the canvas/2d context.
-p.entity(null, { 'ctx-2d': null })
+pkt.entity(null, { 'ctx-2d': null })
 
 // The defaults are fine, but we could override the game configuration if
 // stress testing.
-p.entity(null, { 'game-config': null })
+pkt.entity(null, { 'game-config': null })
 
 // Configure our primary input, the keyboard. Other components, such as mouse,
 // could be added here to create a complete input entity.
-p.entity(null, {
+pkt.entity(null, {
   'input': null,
   'keyboard-state': {
     named: {
@@ -135,12 +135,12 @@ p.entity(null, {
 })
 
 // Our ship!
-p.entity(null, {
+pkt.entity(null, {
   'ship': null,
   'human-controlled-01': null,
   'verlet-position': {
-    x: p.firstData('ctx-2d').center.x,
-    y: p.firstData('ctx-2d').center.y
+    x: pkt.firstData('ctx-2d').center.x,
+    y: pkt.firstData('ctx-2d').center.y
   },
   'rotation': { rate: 0.1 },
   'thrust': null,
@@ -158,7 +158,7 @@ p.entity(null, {
 // Systems For The Components
 ///////////////////////////////////////////////////////////////////////////////
 
-p.sysFromObj({
+pkt.sysFromObj({
   name: 'input-thrust',
   reqs: ['verlet-position', 'rotation', 'thrust', 'human-controlled-01'],
   actionEach: function(pkt, entity, position, rotation, thrust) {
@@ -173,7 +173,7 @@ p.sysFromObj({
   }
 })
 
-p.sysFromObj({
+pkt.sysFromObj({
   name: 'input-shoot',
   reqs: ['verlet-position', 'rotation', 'projectile-launcher', 'human-controlled-01'],
   actionEach: function(pkt, entity, position, rotation, launcher) {
@@ -188,7 +188,7 @@ p.sysFromObj({
       var y = Math.sin(rotation.angle) * launcher.launchForce;
 
       var size = 2;
-      var projectile = p.entity(null, {
+      var projectile = pkt.entity(null, {
         'projectile': null,
         'rotation': null,
         'verlet-position': {
@@ -208,7 +208,7 @@ p.sysFromObj({
   }
 })
 
-p.sysFromObj({
+pkt.sysFromObj({
   name: 'drag',
   reqs: ['verlet-position', 'drag'],
   actionEach: function(pkt, entity, position, drag) {
@@ -219,7 +219,7 @@ p.sysFromObj({
   }
 })
 
-p.sysFromObj({
+pkt.sysFromObj({
   name: 'input-rotation',
   reqs: ['rotation', 'human-controlled-01'],
   actionEach: function(pkt, entity, rotation) {
@@ -233,7 +233,7 @@ p.sysFromObj({
   }
 })
 
-p.sysFromObj({
+pkt.sysFromObj({
   name: 'verlet-accelerate',
   reqs: ['verlet-position'],
   actionEach: function(pkt, entity, cmp) {
@@ -246,7 +246,7 @@ p.sysFromObj({
   }
 })
 
-p.sysFromObj({
+pkt.sysFromObj({
   name: 'verlet-inertia',
   reqs: ['verlet-position'],
   actionEach: function(pkt, entity, cmp) {
@@ -258,7 +258,7 @@ p.sysFromObj({
   }
 })
 
-p.sysFromObj({
+pkt.sysFromObj({
   name: 'point-shape-bounding-box-provider',
   reqs: ['point-shape', 'verlet-position', 'bbox'],
   actionEach: function(pkt, entity, shape, position, bbox) {
@@ -286,7 +286,7 @@ p.sysFromObj({
   }
 })
 
-p.sysFromObj({
+pkt.sysFromObj({
   name: 'bbox-world-wrap',
   reqs: ['bbox', 'verlet-position'],
   actionEach: function(pkt, entity, bbox, position) {
@@ -329,14 +329,14 @@ p.sysFromObj({
   }
 })
 
-p.sysFromObj({
+pkt.sysFromObj({
   name: 'initial-asteroid-generation',
   reqs: [],
   action: function(pkt) {
 
     var config = pkt.firstData('game-config');
     var entities = pkt.entitiesMatching('point-shape', 'asteroid');
-    var center = p.firstData('ctx-2d').center;
+    var center = pkt.firstData('ctx-2d').center;
     var diff = config.maxAsteroids - entities.length;
 
     while (diff > 0) {
@@ -435,7 +435,7 @@ function precomputeWorldCoordinates(shape, position, rotation) {
   }
 }
 
-p.sysFromObj({
+pkt.sysFromObj({
   name: 'asteroid-ship-collider',
   reqs: ['point-shape', 'verlet-position', 'rotation', 'asteroid'],
   action: function(pkt, entities, shapes, positions, rotations) {
@@ -462,14 +462,14 @@ p.sysFromObj({
 
     if (isWithin) {
       // TODO: make this actually reset the game or something.
-      var center = p.firstData('ctx-2d').center;
+      var center = pkt.firstData('ctx-2d').center;
       v2.copy(shipPos.cpos, center);
       v2.copy(shipPos.ppos, center);
     }
   }
 })
 
-p.sysFromObj({
+pkt.sysFromObj({
   name: 'asteroid-projectile-collider',
   reqs: ['point-shape', 'verlet-position', 'rotation', 'asteroid'],
   action: function(pkt, entities, shapes, positions, rotations) {
@@ -508,7 +508,7 @@ p.sysFromObj({
   }
 })
 
-p.sysFromObj({
+pkt.sysFromObj({
   name: 'render-clear-canvas',
   reqs: ['ctx-2d'],
   actionEach: function(pkt, entity, cmp) {
@@ -516,7 +516,7 @@ p.sysFromObj({
   }
 })
 
-p.sysFromObj({
+pkt.sysFromObj({
   name: 'render-point-shape',
   reqs: ['verlet-position', 'point-shape', 'rotation'],
   action: function(pkt, entities, positions, shapes, rotations) {
@@ -547,9 +547,9 @@ p.sysFromObj({
   }
 })
 
-p.tick(16);
+pkt.tick(16);
 
-window.p = p;
-p.go = function() {
-  (function yeah() { p.tick(16); requestAnimationFrame(yeah) }())
+window.pkt = pkt;
+pkt.go = function() {
+  (function yeah() { pkt.tick(16); requestAnimationFrame(yeah) }())
 }
