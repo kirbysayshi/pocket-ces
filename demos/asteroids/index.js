@@ -27,11 +27,11 @@ p.cmp('ctx-2d', function(cmp, opts) {
 })
 
 p.cmp('game-config', function(cmp, opts) {
-  cmp.MAX_POINTS_PER_ASTEROID_SHAPE = opts.MAX_POINTS_PER_ASTEROID_SHAPE || 10;
-  cmp.MIN_POINTS_PER_ASTEROID_SHAPE = opts.MIN_POINTS_PER_ASTEROID_SHAPE || 10;
-  cmp.MAX_ASTEROID_RADIUS = opts.MAX_ASTEROID_RADIUS || 60;
-  cmp.MIN_ASTEROID_RADIUS = opts.MIN_ASTEROID_RADIUS || 20;
-  cmp.INITIAL_ASTEROID_DISTANCE = opts.INITIAL_ASTEROID_DISTANCE || 100;
+  cmp.MAX_POINTS_PER_ASTEROID_SHAPE = 10;
+  cmp.MIN_POINTS_PER_ASTEROID_SHAPE = 10;
+  cmp.MAX_ASTEROID_RADIUS = 60;
+  cmp.MIN_ASTEROID_RADIUS = 20;
+  cmp.INITIAL_ASTEROID_DISTANCE = 100;
 
   // This one may change over the course of our game to increase difficulty...
   cmp.maxAsteroids = opts.maxAsteroids || 5;
@@ -104,6 +104,8 @@ p.cmp('drag', function(cmp, opts) {
 
 p.cmp('projectile-launcher', function(cmp, opts) {
   cmp.launchForce = opts.launchForce || 1;
+  cmp.limit = opts.limit || 10;
+  cmp.actives = []; // Maybe?
 })
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -260,6 +262,8 @@ p.sysFromObj({
   name: 'point-shape-bounding-box-provider',
   reqs: ['point-shape', 'verlet-position', 'bbox'],
   actionEach: function(pkt, entity, shape, position, bbox) {
+
+    // TODO: include rotation?
 
     var point;
     var maxX = Number.MIN_VALUE, maxY = Number.MIN_VALUE;
