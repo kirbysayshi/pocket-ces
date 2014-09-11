@@ -2,6 +2,8 @@
 var v2 = require('../v2');
 var Pocket = require('../../');
 
+var createAsteroid = require('./asteroid');
+
 var pkt = new Pocket();
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,17 +28,7 @@ pkt.cmp('ctx-2d', function(cmp, opts) {
   }()))
 })
 
-pkt.cmp('game-config', function(cmp, opts) {
-  cmp.MAX_POINTS_PER_ASTEROID_SHAPE = 10;
-  cmp.MIN_POINTS_PER_ASTEROID_SHAPE = 10;
-  cmp.MAX_ASTEROID_RADIUS = 60;
-  cmp.MIN_ASTEROID_RADIUS = 20;
-  cmp.INITIAL_ASTEROID_DISTANCE = 100;
-
-  // This one may change over the course of our game to increase difficulty...
-  cmp.maxAsteroids = opts.maxAsteroids || 5;
-  cmp.asteroidSpeed = opts.asteroidSpeed || 2;
-})
+pkt.cmp('game-config', require('./config'))
 
 // This is a little weird, since it mutates itself! But it has to due to the
 // DOM event model. Otherwise we'd never know the state of keys.
@@ -135,24 +127,7 @@ pkt.entity({
 })
 
 // Our ship!
-pkt.entity({
-  'ship': null,
-  'human-controlled-01': null,
-  'verlet-position': {
-    x: pkt.firstData('ctx-2d').center.x,
-    y: pkt.firstData('ctx-2d').center.y
-  },
-  'rotation': { rate: 0.1 },
-  'thrust': null,
-  'drag': null,
-  'projectile-launcher': { launchForce: 10 },
-  'point-shape': { points: [
-    { x: 10, y: 0 },
-    { x: -10, y: -5 },
-    { x: -10, y:  5 }
-  ]},
-  'bbox': null
-})
+require('./ship')(pkt)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Systems For The Components
@@ -346,36 +321,12 @@ pkt.sysFromObj({
       // asteroids must be created in more than one place.
 
       var PI2 = Math.PI*2;
-      var points = [];
-      var numPoints = Math.max(
-        config.MIN_POINTS_PER_ASTEROID_SHAPE,
-        Math.random() * config.MAX_POINTS_PER_ASTEROID_SHAPE);
-      for (var i = 0; i < numPoints; i++) {
-        var radius = Math.max(config.MIN_ASTEROID_RADIUS,
-            Math.random() * config.MAX_ASTEROID_RADIUS);
-        points.push({
-          x: radius * Math.cos(i/numPoints * PI2),
-          y: radius * Math.sin(i/numPoints * PI2)
-        })
-      }
+      var distance = config.INITIAL_ASTEROID_DISTANCE
 
-      var acelX = config.asteroidSpeed * Math.cos( Math.random()*PI2 )
-      var acelY = config.asteroidSpeed * Math.sin( Math.random()*PI2 )
+      var x = center.x + (distance * Math.cos(diff / config.maxAsteroids * PI2));
+      var y = center.y + (distance * Math.sin(diff / config.maxAsteroids * PI2));
 
-      var x = center.x + (config.INITIAL_ASTEROID_DISTANCE * Math.cos(diff / config.maxAsteroids * PI2));
-      var y = center.y + (config.INITIAL_ASTEROID_DISTANCE * Math.sin(diff / config.maxAsteroids * PI2));
-
-      pkt.entity({
-        'asteroid': null,
-        'verlet-position': {
-          x: x,
-          y: y,
-          acel: v2(acelX, acelY) },
-        'point-shape': { points: points },
-        'bbox': null,
-        'rotation': null
-      })
-
+      createAsteroid(pkt, x, y);
     }
   }
 })
