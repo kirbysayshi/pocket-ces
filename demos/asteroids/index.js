@@ -270,35 +270,35 @@ pkt.sysFromObj({
     var epsilon = 2;
 
     var top = position.cpos.y + bbox.lowerRight.y + epsilon < 0;
-    var right = position.cpos.x - bbox.upperLeft.x - epsilon > ctx.width;
-    var bottom = position.cpos.y - bbox.upperLeft.y - epsilon > ctx.height;
+    var right = position.cpos.x + bbox.upperLeft.x - epsilon > ctx.width;
+    var bottom = position.cpos.y + bbox.upperLeft.y - epsilon > ctx.height;
     var left = position.cpos.x + bbox.lowerRight.x + epsilon < 0;
 
     if (top) {
       // Teleport to bottom.
-      position.cpos.y += ctx.height + bbox.height;
-      position.ppos.y += ctx.height + bbox.height;
+      position.cpos.y += ctx.height + bbox.height/2;
+      position.ppos.y += ctx.height + bbox.height/2;
       return;
     }
 
     if (right) {
       // Teleport to left.
-      position.cpos.x -= ctx.width - bbox.width/2;
-      position.ppos.x -= ctx.width - bbox.width/2;
+      position.cpos.x -= ctx.width + bbox.width;
+      position.ppos.x -= ctx.width + bbox.width;
       return;
     }
 
     if (bottom) {
       // Teleport to top.
-      position.cpos.y -= ctx.height - bbox.height/2;
-      position.ppos.y -= ctx.height - bbox.height/2;
+      position.cpos.y -= ctx.height + bbox.height;
+      position.ppos.y -= ctx.height + bbox.height;
       return;
     }
 
     if (left) {
       // Teleport to right.
-      position.cpos.x += ctx.width + bbox.width/2;
-      position.ppos.x += ctx.width + bbox.width/2;
+      position.cpos.x += ctx.width + bbox.width;
+      position.ppos.x += ctx.width + bbox.width;
       return;
     }
   }
