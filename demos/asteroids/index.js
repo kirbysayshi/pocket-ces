@@ -121,7 +121,8 @@ pkt.entity({
       32: 'SHOOT',
       37: 'LEFT',
       39: 'RIGHT',
-      38: 'UP'
+      38: 'UP',
+      68: 'DEBUG' // d
     }
   }
 })
@@ -495,6 +496,29 @@ pkt.sysFromObj({
       ctx2d.ctx.lineTo(shape.points[0].x, shape.points[0].y);
       ctx2d.ctx.stroke();
       ctx2d.ctx.restore();
+    }
+  }
+})
+
+pkt.sysFromObj({
+  name: 'debug-render-bbox',
+  reqs: ['bbox', 'verlet-position'],
+  action: function(pkt, entities, bboxes, positions) {
+    var ctx2d = pkt.firstData('ctx-2d')
+    var input = pkt.firstData('keyboard-state');
+
+    if (!input.down.DEBUG) return;
+
+    for (var i = 0; i < entities.length; i++) {
+      var e = entities[i];
+      var position = positions[e];
+      var bbox = bboxes[e];
+
+      var x = position.cpos.x + bbox.upperLeft.x;
+      var y = position.cpos.y + bbox.upperLeft.y;
+
+      ctx2d.ctx.lineStyle = 'black';
+      ctx2d.ctx.strokeRect(x, y, bbox.width, bbox.height);
     }
   }
 })
