@@ -113,15 +113,15 @@ pkt.cmp('projectile-launcher', function(cmp, opts) {
 ///////////////////////////////////////////////////////////////////////////////
 
 // The queryable entity to grab the component that holds the canvas/2d context.
-pkt.entity(null, { 'ctx-2d': null })
+pkt.entity({ 'ctx-2d': null })
 
 // The defaults are fine, but we could override the game configuration if
 // stress testing.
-pkt.entity(null, { 'game-config': null })
+pkt.entity({ 'game-config': null })
 
 // Configure our primary input, the keyboard. Other components, such as mouse,
 // could be added here to create a complete input entity.
-pkt.entity(null, {
+pkt.entity({
   'input': null,
   'keyboard-state': {
     named: {
@@ -135,7 +135,7 @@ pkt.entity(null, {
 })
 
 // Our ship!
-pkt.entity(null, {
+pkt.entity({
   'ship': null,
   'human-controlled-01': null,
   'verlet-position': {
@@ -188,7 +188,7 @@ pkt.sysFromObj({
       var y = Math.sin(rotation.angle) * launcher.launchForce;
 
       var size = 2;
-      var projectile = pkt.entity(null, {
+      var projectile = pkt.entity({
         'projectile': null,
         'rotation': null,
         'verlet-position': {
@@ -365,7 +365,7 @@ pkt.sysFromObj({
       var x = center.x + (config.INITIAL_ASTEROID_DISTANCE * Math.cos(diff / config.maxAsteroids * PI2));
       var y = center.y + (config.INITIAL_ASTEROID_DISTANCE * Math.sin(diff / config.maxAsteroids * PI2));
 
-      pkt.entity(null, {
+      pkt.entity({
         'asteroid': null,
         'verlet-position': {
           x: x,
@@ -375,6 +375,7 @@ pkt.sysFromObj({
         'bbox': null,
         'rotation': null
       })
+
     }
   }
 })
@@ -450,9 +451,9 @@ pkt.sysFromObj({
 
     for (var i = 0; i < entities.length; i++) {
       asteroid = entities[i];
-      shape = shapes[asteroid.id];
-      position = positions[asteroid.id];
-      rotation = rotations[asteroid.id];
+      shape = shapes[asteroid];
+      position = positions[asteroid];
+      rotation = rotations[asteroid];
       precomputeWorldCoordinates(shape, position, rotation);
 
       isWithin = testPointShapeCollision(shape, position, shipShape, shipPos);
@@ -483,16 +484,16 @@ pkt.sysFromObj({
     for (var i = 0; i < entities.length; i++) {
       isHit = false;
       asteroid = entities[i];
-      shape = shapes[asteroid.id];
-      position = positions[asteroid.id];
-      rotation = rotations[asteroid.id];
+      shape = shapes[asteroid];
+      position = positions[asteroid];
+      rotation = rotations[asteroid];
       precomputeWorldCoordinates(shape, position, rotation);
 
       for (var j = 0; j < projectiles.length; j++) {
         projectile = projectiles[j];
-        projectileShape = shapes[projectile.id];
-        projectilePosition = positions[projectile.id];
-        projectileRotation = rotations[projectile.id];
+        projectileShape = shapes[projectile];
+        projectilePosition = positions[projectile];
+        projectileRotation = rotations[projectile];
         precomputeWorldCoordinates(projectileShape, projectilePosition, projectileRotation);
 
         isHit = testPointShapeCollision(projectileShape, projectilePosition, shape, position);
@@ -501,8 +502,8 @@ pkt.sysFromObj({
       }
 
       if (isHit) {
-        pkt.destroyEntityById(asteroid.id);
-        pkt.destroyEntityById(projectile.id);
+        pkt.destroyEntity(asteroid);
+        pkt.destroyEntity(projectile);
       }
     }
   }
@@ -524,9 +525,9 @@ pkt.sysFromObj({
 
     for (var i = 0; i < entities.length; i++) {
       var e = entities[i];
-      var position = positions[e.id];
-      var shape = shapes[e.id];
-      var rotation = rotations[e.id];
+      var position = positions[e];
+      var shape = shapes[e];
+      var rotation = rotations[e];
 
       ctx2d.ctx.save();
       ctx2d.ctx.translate(position.cpos.x, position.cpos.y);
