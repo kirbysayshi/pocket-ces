@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "demos": "beefy demos/exploding-balls/index.js:demos/exploding-balls/bundle.js demos/asteroids/index.js:demos/asteroids/bundle.js demos/dodge/index.js:demos/dodge/bundle.js"
+    "demos": "beefy demos/exploding-balls/index.js:demos/exploding-balls/bundle.js demos/asteroids/index.js:demos/asteroids/bundle.js demos/dodge/index.js:demos/dodge/bundle.js",
+    "talk": "beefy doc/jsconfeu-2014/talk.js:doc/jsconfeu-2014/talk-bundle.js --index doc/jsconfeu-2014/index.html",
+    "deploy-talk": "browserify doc/jsconfeu-2014/talk.js > doc/jsconfeu-2014/talk-bundle.js"
   },
   "keywords": [
     "ces",
