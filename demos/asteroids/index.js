@@ -12,7 +12,7 @@ var pkt = new Pocket();
 
 // Keep in mind this is just the component (data) that provides the 2d
 // context, not the key that can be manipulated or used in systems.
-pkt.cmp('ctx-2d', function(cmp, opts) {
+pkt.cmpType('ctx-2d', function(cmp, opts) {
   cmp.cvs = document.querySelector(opts.cvs || '#c');
   cmp.ctx = cmp.cvs.getContext('2d');
   cmp.center = v2();
@@ -28,11 +28,11 @@ pkt.cmp('ctx-2d', function(cmp, opts) {
   }()))
 })
 
-pkt.cmp('game-config', require('./config'))
+pkt.cmpType('game-config', require('./config'))
 
 // This is a little weird, since it mutates itself! But it has to due to the
 // DOM event model. Otherwise we'd never know the state of keys.
-pkt.cmp('keyboard-state', function(cmp, opts) {
+pkt.cmpType('keyboard-state', function(cmp, opts) {
   var target = opts.target || document;
   target.addEventListener('keydown', keydown, false)
   target.addEventListener('keyup', keyup, false)
@@ -56,7 +56,7 @@ pkt.cmp('keyboard-state', function(cmp, opts) {
   }
 })
 
-pkt.cmp('verlet-position', function(cmp, opts) {
+pkt.cmpType('verlet-position', function(cmp, opts) {
   cmp.cpos = v2(opts.x || 0, opts.y || 0);
   cmp.ppos = v2(opts.x || 0, opts.y || 0);
   cmp.acel = opts.acel
@@ -64,7 +64,7 @@ pkt.cmp('verlet-position', function(cmp, opts) {
     : v2(0, 0);
 })
 
-pkt.cmp('point-shape', function(cmp, opts) {
+pkt.cmpType('point-shape', function(cmp, opts) {
   // points are expected to be {x, y} objects, like verlet-positions
   cmp.points = opts.points || [];
   // These are simply here as a preallocation, since they'll be used
@@ -74,27 +74,27 @@ pkt.cmp('point-shape', function(cmp, opts) {
   cmp.worldYS = new Array(cmp.points.length);
 })
 
-pkt.cmp('bbox', function(cmp, opts) {
+pkt.cmpType('bbox', function(cmp, opts) {
   cmp.width = 0;
   cmp.height = 0;
   cmp.upperLeft = v2();
   cmp.lowerRight = v2();
 })
 
-pkt.cmp('rotation', function(cmp, opts) {
+pkt.cmpType('rotation', function(cmp, opts) {
   cmp.angle = opts.angle || 0;
   cmp.rate = opts.rate || 0;
 })
 
-pkt.cmp('thrust', function(cmp, opts) {
+pkt.cmpType('thrust', function(cmp, opts) {
   cmp.force = opts.force || 1;
 })
 
-pkt.cmp('drag', function(cmp, opts) {
+pkt.cmpType('drag', function(cmp, opts) {
   cmp.percentage = opts.percentage || 0.99;
 })
 
-pkt.cmp('projectile-launcher', function(cmp, opts) {
+pkt.cmpType('projectile-launcher', function(cmp, opts) {
   cmp.launchForce = opts.launchForce || 1;
   cmp.limit = opts.limit || 10;
   cmp.actives = []; // Maybe?
@@ -532,4 +532,4 @@ pkt.tick(16);
 window.pkt = pkt;
 pkt.go = function() {
   (function yeah() { pkt.tick(16); requestAnimationFrame(yeah) }())
-}
+}()
