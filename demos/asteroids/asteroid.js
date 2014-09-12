@@ -24,7 +24,7 @@ module.exports = function(pkt, x, y) {
     })
   }
 
-  return pkt.entity({
+  return pkt.key({
     'asteroid': null,
     'verlet-position': {
       x: x,

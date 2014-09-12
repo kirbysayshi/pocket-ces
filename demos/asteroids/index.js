@@ -11,7 +11,7 @@ var pkt = new Pocket();
 ///////////////////////////////////////////////////////////////////////////////
 
 // Keep in mind this is just the component (data) that provides the 2d
-// context, not the entity that can be manipulated or used in systems.
+// context, not the key that can be manipulated or used in systems.
 pkt.cmp('ctx-2d', function(cmp, opts) {
   cmp.cvs = document.querySelector(opts.cvs || '#c');
   cmp.ctx = cmp.cvs.getContext('2d');
@@ -101,19 +101,19 @@ pkt.cmp('projectile-launcher', function(cmp, opts) {
 })
 
 ///////////////////////////////////////////////////////////////////////////////
-// Starting Entities
+// Starting keys
 ///////////////////////////////////////////////////////////////////////////////
 
-// The queryable entity to grab the component that holds the canvas/2d context.
-pkt.entity({ 'ctx-2d': null })
+// The queryable key to grab the component that holds the canvas/2d context.
+pkt.key({ 'ctx-2d': null })
 
 // The defaults are fine, but we could override the game configuration if
 // stress testing.
-pkt.entity({ 'game-config': null })
+pkt.key({ 'game-config': null })
 
 // Configure our primary input, the keyboard. Other components, such as mouse,
-// could be added here to create a complete input entity.
-pkt.entity({
+// could be added here to create a complete input key.
+pkt.key({
   'input': null,
   'keyboard-state': {
     named: {
@@ -137,7 +137,7 @@ require('./ship')(pkt)
 pkt.systemForEach(
   'input-thrust',
   ['verlet-position', 'rotation', 'thrust', 'human-controlled-01'],
-  function(pkt, entity, position, rotation, thrust) {
+  function(pkt, key, position, rotation, thrust) {
     var input = pkt.firstData('keyboard-state');
 
     if (input.down.UP) {
@@ -152,7 +152,7 @@ pkt.systemForEach(
 pkt.systemForEach(
   'input-shoot',
   ['verlet-position', 'rotation', 'projectile-launcher', 'bbox', 'human-controlled-01'],
-  function(pkt, entity, position, rotation, launcher, bbox) {
+  function(pkt, key, position, rotation, launcher, bbox) {
     var input = pkt.firstData('keyboard-state');
     var config = pkt.firstData('game-config');
 
@@ -167,7 +167,7 @@ pkt.systemForEach(
       var y = Math.sin(rotation.angle) * (Math.max(bbox.width, bbox.height) / 2);
 
       var size = 2;
-      var projectile = pkt.entity({
+      var projectile = pkt.key({
         'projectile': null,
         'rotation': null,
         'verlet-position': {
@@ -190,7 +190,7 @@ pkt.systemForEach(
 pkt.systemForEach(
   'drag',
   ['verlet-position', 'drag'],
-  function(pkt, entity, position, drag) {
+  function(pkt, key, position, drag) {
     var x = (position.ppos.x - position.cpos.x) * (drag.percentage);
     var y = (position.ppos.y - position.cpos.y) * (drag.percentage);
     position.ppos.x = position.cpos.x + x;
@@ -201,7 +201,7 @@ pkt.systemForEach(
 pkt.systemForEach(
   'input-rotation',
   ['rotation', 'human-controlled-01'],
-  function(pkt, entity, rotation) {
+  function(pkt, key, rotation) {
     var input = pkt.firstData('keyboard-state');
 
     if (input.down.RIGHT) {
@@ -215,7 +215,7 @@ pkt.systemForEach(
 pkt.systemForEach(
   'verlet-accelerate',
   ['verlet-position'],
-  function(pkt, entity, cmp) {
+  function(pkt, key, cmp) {
     // apply acceleration to current position, convert dt to seconds
     cmp.cpos.x += cmp.acel.x * pkt.dt * pkt.dt * 0.001;
     cmp.cpos.y += cmp.acel.y * pkt.dt * pkt.dt * 0.001;
@@ -228,7 +228,7 @@ pkt.systemForEach(
 pkt.systemForEach(
   'verlet-inertia',
   ['verlet-position'],
-  function(pkt, entity, cmp) {
+  function(pkt, key, cmp) {
     var x = cmp.cpos.x*2 - cmp.ppos.x
       , y = cmp.cpos.y*2 - cmp.ppos.y;
 
@@ -240,7 +240,7 @@ pkt.systemForEach(
 pkt.systemForEach(
   'point-shape-bounding-box-provider',
   ['point-shape', 'verlet-position', 'bbox'],
-  function(pkt, entity, shape, position, bbox) {
+  function(pkt, key, shape, position, bbox) {
 
     // TODO: include rotation?
 
@@ -268,7 +268,7 @@ pkt.systemForEach(
 pkt.systemForEach(
   'bbox-world-wrap',
   ['bbox', 'verlet-position'],
-  function(pkt, entity, bbox, position) {
+  function(pkt, key, bbox, position) {
     var ctx = pkt.firstData('ctx-2d');
 
     var epsilon = 2;
@@ -314,9 +314,9 @@ pkt.system(
   function(pkt) {
 
     var config = pkt.firstData('game-config');
-    var entities = pkt.entitiesMatching('point-shape', 'asteroid');
+    var keys = pkt.keysMatching('point-shape', 'asteroid');
     var center = pkt.firstData('ctx-2d').center;
-    var diff = config.maxAsteroids - entities.length;
+    var diff = config.maxAsteroids - keys.length;
 
     while (diff > 0) {
       diff--;
@@ -394,8 +394,8 @@ function precomputeWorldCoordinates(shape, position, rotation) {
 pkt.system(
   'asteroid-ship-collider',
   ['point-shape', 'verlet-position', 'rotation', 'asteroid'],
-  function(pkt, entities, shapes, positions, rotations) {
-    var ship = pkt.firstEntity('ship');
+  function(pkt, keys, shapes, positions, rotations) {
+    var ship = pkt.firstkey('ship');
     var shipShape = pkt.dataFor(ship, 'point-shape');
     var shipPos = pkt.dataFor(ship, 'verlet-position');
     var shipRotation = pkt.dataFor(ship, 'rotation');
@@ -404,8 +404,8 @@ pkt.system(
     var asteroid, shape, position, rotation;
     var isWithin = false;
 
-    for (var i = 0; i < entities.length; i++) {
-      asteroid = entities[i];
+    for (var i = 0; i < keys.length; i++) {
+      asteroid = keys[i];
       shape = shapes[asteroid];
       position = positions[asteroid];
       rotation = rotations[asteroid];
@@ -428,17 +428,17 @@ pkt.system(
 pkt.system(
   'asteroid-projectile-collider',
   ['point-shape', 'verlet-position', 'rotation', 'asteroid'],
-  function(pkt, entities, shapes, positions, rotations) {
+  function(pkt, keys, shapes, positions, rotations) {
 
-    var projectiles = pkt.entitiesMatching('point-shape', 'verlet-position', 'rotation', 'projectile');
+    var projectiles = pkt.keysMatching('point-shape', 'verlet-position', 'rotation', 'projectile');
 
     var asteroid, shape, position, rotation;
     var projectile, projectileShape, projectilePosition, projectileRotation;
     var isHit;
 
-    for (var i = 0; i < entities.length; i++) {
+    for (var i = 0; i < keys.length; i++) {
       isHit = false;
-      asteroid = entities[i];
+      asteroid = keys[i];
       shape = shapes[asteroid];
       position = positions[asteroid];
       rotation = rotations[asteroid];
@@ -457,8 +457,8 @@ pkt.system(
       }
 
       if (isHit) {
-        pkt.destroyEntity(asteroid);
-        pkt.destroyEntity(projectile);
+        pkt.destroykey(asteroid);
+        pkt.destroykey(projectile);
       }
     }
   }
@@ -467,7 +467,7 @@ pkt.system(
 pkt.systemForEach(
   'render-clear-canvas',
   ['ctx-2d'],
-  function(pkt, entity, cmp) {
+  function(pkt, key, cmp) {
     cmp.ctx.clearRect(0, 0, cmp.width, cmp.height);
   }
 )
@@ -475,11 +475,11 @@ pkt.systemForEach(
 pkt.system(
   'render-point-shape',
   ['verlet-position', 'point-shape', 'rotation'],
-  function(pkt, entities, positions, shapes, rotations) {
+  function(pkt, keys, positions, shapes, rotations) {
     var ctx2d = pkt.firstData('ctx-2d')
 
-    for (var i = 0; i < entities.length; i++) {
-      var e = entities[i];
+    for (var i = 0; i < keys.length; i++) {
+      var e = keys[i];
       var position = positions[e];
       var shape = shapes[e];
       var rotation = rotations[e];
@@ -506,14 +506,14 @@ pkt.system(
 pkt.system(
   'debug-render-bbox',
   ['bbox', 'verlet-position'],
-  function(pkt, entities, bboxes, positions) {
+  function(pkt, keys, bboxes, positions) {
     var ctx2d = pkt.firstData('ctx-2d')
     var input = pkt.firstData('keyboard-state');
 
     if (!input.down.DEBUG) return;
 
-    for (var i = 0; i < entities.length; i++) {
-      var e = entities[i];
+    for (var i = 0; i < keys.length; i++) {
+      var e = keys[i];
       var position = positions[e];
       var bbox = bboxes[e];
 

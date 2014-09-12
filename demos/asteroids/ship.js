@@ -2,7 +2,7 @@ module.exports = function(pkt) {
 
   var size = 10;
 
-  return pkt.entity({
+  return pkt.key({
     'ship': null,
     'human-controlled-01': null,
     'verlet-position': {
