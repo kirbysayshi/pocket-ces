@@ -151,8 +151,8 @@ pkt.sysFromObj({
 
 pkt.sysFromObj({
   name: 'input-shoot',
-  reqs: ['verlet-position', 'rotation', 'projectile-launcher', 'human-controlled-01'],
-  actionEach: function(pkt, entity, position, rotation, launcher) {
+  reqs: ['verlet-position', 'rotation', 'projectile-launcher', 'bbox', 'human-controlled-01'],
+  actionEach: function(pkt, entity, position, rotation, launcher, bbox) {
     var input = pkt.firstData('keyboard-state');
     var config = pkt.firstData('game-config');
 
@@ -160,17 +160,20 @@ pkt.sysFromObj({
     var timePressed = now - input.down.SHOOT;
 
     if (input.down.SHOOT && timePressed > 0 && timePressed < 16) {
-      var x = Math.cos(rotation.angle) * launcher.launchForce;
-      var y = Math.sin(rotation.angle) * launcher.launchForce;
+      var ax = Math.cos(rotation.angle) * launcher.launchForce;
+      var ay = Math.sin(rotation.angle) * launcher.launchForce;
+
+      var x = Math.cos(rotation.angle) * (Math.max(bbox.width, bbox.height) / 2);
+      var y = Math.sin(rotation.angle) * (Math.max(bbox.width, bbox.height) / 2);
 
       var size = 2;
       var projectile = pkt.entity({
         'projectile': null,
         'rotation': null,
         'verlet-position': {
-          x: position.cpos.x,
-          y: position.cpos.y,
-          acel: v2(x, y)
+          x: x + position.cpos.x,
+          y: y + position.cpos.y,
+          acel: v2(ax, ay)
         },
         'point-shape': { points: [
           { x: size, y: 0 },
