@@ -134,10 +134,10 @@ require('./ship')(pkt)
 // Systems For The Components
 ///////////////////////////////////////////////////////////////////////////////
 
-pkt.sysFromObj({
-  name: 'input-thrust',
-  reqs: ['verlet-position', 'rotation', 'thrust', 'human-controlled-01'],
-  actionEach: function(pkt, entity, position, rotation, thrust) {
+pkt.systemForEach(
+  'input-thrust',
+  ['verlet-position', 'rotation', 'thrust', 'human-controlled-01'],
+  function(pkt, entity, position, rotation, thrust) {
     var input = pkt.firstData('keyboard-state');
 
     if (input.down.UP) {
@@ -147,12 +147,12 @@ pkt.sysFromObj({
       position.acel.y += y;
     }
   }
-})
+)
 
-pkt.sysFromObj({
-  name: 'input-shoot',
-  reqs: ['verlet-position', 'rotation', 'projectile-launcher', 'bbox', 'human-controlled-01'],
-  actionEach: function(pkt, entity, position, rotation, launcher, bbox) {
+pkt.systemForEach(
+  'input-shoot',
+  ['verlet-position', 'rotation', 'projectile-launcher', 'bbox', 'human-controlled-01'],
+  function(pkt, entity, position, rotation, launcher, bbox) {
     var input = pkt.firstData('keyboard-state');
     var config = pkt.firstData('game-config');
 
@@ -185,23 +185,23 @@ pkt.sysFromObj({
       });
     }
   }
-})
+)
 
-pkt.sysFromObj({
-  name: 'drag',
-  reqs: ['verlet-position', 'drag'],
-  actionEach: function(pkt, entity, position, drag) {
+pkt.systemForEach(
+  'drag',
+  ['verlet-position', 'drag'],
+  function(pkt, entity, position, drag) {
     var x = (position.ppos.x - position.cpos.x) * (drag.percentage);
     var y = (position.ppos.y - position.cpos.y) * (drag.percentage);
     position.ppos.x = position.cpos.x + x;
     position.ppos.y = position.cpos.y + y;
   }
-})
+)
 
-pkt.sysFromObj({
-  name: 'input-rotation',
-  reqs: ['rotation', 'human-controlled-01'],
-  actionEach: function(pkt, entity, rotation) {
+pkt.systemForEach(
+  'input-rotation',
+  ['rotation', 'human-controlled-01'],
+  function(pkt, entity, rotation) {
     var input = pkt.firstData('keyboard-state');
 
     if (input.down.RIGHT) {
@@ -210,12 +210,12 @@ pkt.sysFromObj({
       rotation.angle -= rotation.rate;
     }
   }
-})
+)
 
-pkt.sysFromObj({
-  name: 'verlet-accelerate',
-  reqs: ['verlet-position'],
-  actionEach: function(pkt, entity, cmp) {
+pkt.systemForEach(
+  'verlet-accelerate',
+  ['verlet-position'],
+  function(pkt, entity, cmp) {
     // apply acceleration to current position, convert dt to seconds
     cmp.cpos.x += cmp.acel.x * pkt.dt * pkt.dt * 0.001;
     cmp.cpos.y += cmp.acel.y * pkt.dt * pkt.dt * 0.001;
@@ -223,24 +223,24 @@ pkt.sysFromObj({
     // reset acceleration
     v2.set(cmp.acel, 0, 0);
   }
-})
+)
 
-pkt.sysFromObj({
-  name: 'verlet-inertia',
-  reqs: ['verlet-position'],
-  actionEach: function(pkt, entity, cmp) {
+pkt.systemForEach(
+  'verlet-inertia',
+  ['verlet-position'],
+  function(pkt, entity, cmp) {
     var x = cmp.cpos.x*2 - cmp.ppos.x
       , y = cmp.cpos.y*2 - cmp.ppos.y;
 
     v2.set(cmp.ppos, cmp.cpos.x, cmp.cpos.y);
     v2.set(cmp.cpos, x, y);
   }
-})
+)
 
-pkt.sysFromObj({
-  name: 'point-shape-bounding-box-provider',
-  reqs: ['point-shape', 'verlet-position', 'bbox'],
-  actionEach: function(pkt, entity, shape, position, bbox) {
+pkt.systemForEach(
+  'point-shape-bounding-box-provider',
+  ['point-shape', 'verlet-position', 'bbox'],
+  function(pkt, entity, shape, position, bbox) {
 
     // TODO: include rotation?
 
@@ -263,12 +263,12 @@ pkt.sysFromObj({
     bbox.lowerRight.x = maxX;
     bbox.lowerRight.y = maxY;
   }
-})
+)
 
-pkt.sysFromObj({
-  name: 'bbox-world-wrap',
-  reqs: ['bbox', 'verlet-position'],
-  actionEach: function(pkt, entity, bbox, position) {
+pkt.systemForEach(
+  'bbox-world-wrap',
+  ['bbox', 'verlet-position'],
+  function(pkt, entity, bbox, position) {
     var ctx = pkt.firstData('ctx-2d');
 
     var epsilon = 2;
@@ -306,12 +306,12 @@ pkt.sysFromObj({
       return;
     }
   }
-})
+)
 
-pkt.sysFromObj({
-  name: 'initial-asteroid-generation',
-  reqs: [],
-  action: function(pkt) {
+pkt.system(
+  'initial-asteroid-generation',
+  [],
+  function(pkt) {
 
     var config = pkt.firstData('game-config');
     var entities = pkt.entitiesMatching('point-shape', 'asteroid');
@@ -333,7 +333,7 @@ pkt.sysFromObj({
       createAsteroid(pkt, x, y);
     }
   }
-})
+)
 
 function pnpoly(nvert, vertx, verty, testx, testy) {
   var i, j, c = 0;
@@ -391,10 +391,10 @@ function precomputeWorldCoordinates(shape, position, rotation) {
   }
 }
 
-pkt.sysFromObj({
-  name: 'asteroid-ship-collider',
-  reqs: ['point-shape', 'verlet-position', 'rotation', 'asteroid'],
-  action: function(pkt, entities, shapes, positions, rotations) {
+pkt.system(
+  'asteroid-ship-collider',
+  ['point-shape', 'verlet-position', 'rotation', 'asteroid'],
+  function(pkt, entities, shapes, positions, rotations) {
     var ship = pkt.firstEntity('ship');
     var shipShape = pkt.dataFor(ship, 'point-shape');
     var shipPos = pkt.dataFor(ship, 'verlet-position');
@@ -423,12 +423,12 @@ pkt.sysFromObj({
       v2.copy(shipPos.ppos, center);
     }
   }
-})
+)
 
-pkt.sysFromObj({
-  name: 'asteroid-projectile-collider',
-  reqs: ['point-shape', 'verlet-position', 'rotation', 'asteroid'],
-  action: function(pkt, entities, shapes, positions, rotations) {
+pkt.system(
+  'asteroid-projectile-collider',
+  ['point-shape', 'verlet-position', 'rotation', 'asteroid'],
+  function(pkt, entities, shapes, positions, rotations) {
 
     var projectiles = pkt.entitiesMatching('point-shape', 'verlet-position', 'rotation', 'projectile');
 
@@ -462,20 +462,20 @@ pkt.sysFromObj({
       }
     }
   }
-})
+)
 
-pkt.sysFromObj({
-  name: 'render-clear-canvas',
-  reqs: ['ctx-2d'],
-  actionEach: function(pkt, entity, cmp) {
+pkt.systemForEach(
+  'render-clear-canvas',
+  ['ctx-2d'],
+  function(pkt, entity, cmp) {
     cmp.ctx.clearRect(0, 0, cmp.width, cmp.height);
   }
-})
+)
 
-pkt.sysFromObj({
-  name: 'render-point-shape',
-  reqs: ['verlet-position', 'point-shape', 'rotation'],
-  action: function(pkt, entities, positions, shapes, rotations) {
+pkt.system(
+  'render-point-shape',
+  ['verlet-position', 'point-shape', 'rotation'],
+  function(pkt, entities, positions, shapes, rotations) {
     var ctx2d = pkt.firstData('ctx-2d')
 
     for (var i = 0; i < entities.length; i++) {
@@ -501,12 +501,12 @@ pkt.sysFromObj({
       ctx2d.ctx.restore();
     }
   }
-})
+)
 
-pkt.sysFromObj({
-  name: 'debug-render-bbox',
-  reqs: ['bbox', 'verlet-position'],
-  action: function(pkt, entities, bboxes, positions) {
+pkt.system(
+  'debug-render-bbox',
+  ['bbox', 'verlet-position'],
+  function(pkt, entities, bboxes, positions) {
     var ctx2d = pkt.firstData('ctx-2d')
     var input = pkt.firstData('keyboard-state');
 
@@ -524,7 +524,7 @@ pkt.sysFromObj({
       ctx2d.ctx.strokeRect(x, y, bbox.width, bbox.height);
     }
   }
-})
+)
 
 pkt.tick(16);
 
