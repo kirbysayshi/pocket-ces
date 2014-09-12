@@ -188,7 +188,7 @@ pkt.systemForEach(
 )
 
 pkt.systemForEach(
-  'drag',
+  'apply-drag',
   ['verlet-position', 'drag'],
   function(pkt, key, position, drag) {
     var x = (position.ppos.x - position.cpos.x) * (drag.percentage);
