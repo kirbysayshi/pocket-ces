@@ -318,14 +318,15 @@ pkt.system(
     var center = pkt.firstData('ctx-2d').center;
     var diff = config.maxAsteroids - keys.length;
 
+    var PI2 = Math.PI*2;
+    var distance = config.INITIAL_ASTEROID_DISTANCE
+
     while (diff > 0) {
       diff--;
 
       // Make more asteroids! This could be a function in the event that
       // asteroids must be created in more than one place.
 
-      var PI2 = Math.PI*2;
-      var distance = config.INITIAL_ASTEROID_DISTANCE
 
       var x = center.x + (distance * Math.cos(diff / config.maxAsteroids * PI2));
       var y = center.y + (distance * Math.sin(diff / config.maxAsteroids * PI2));
