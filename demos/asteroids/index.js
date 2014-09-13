@@ -397,6 +397,7 @@ pkt.system(
   ['point-shape', 'verlet-position', 'rotation', 'asteroid'],
   function(pkt, keys, shapes, positions, rotations) {
     var ship = pkt.firstkey('ship');
+    if (!ship) return;
     var shipShape = pkt.dataFor(ship, 'point-shape');
     var shipPos = pkt.dataFor(ship, 'verlet-position');
     var shipRotation = pkt.dataFor(ship, 'rotation');
