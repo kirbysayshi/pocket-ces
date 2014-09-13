@@ -492,6 +492,7 @@ pkt.system(
       ctx2d.ctx.translate(position.cpos.x, position.cpos.y);
       ctx2d.ctx.rotate(rotation.angle);
       ctx2d.ctx.beginPath();
+      ctx2d.ctx.lineWidth = 4;
       for (var j = 0; j < shape.points.length; j++) {
         var point = shape.points[j];
         if (j == 0) {
