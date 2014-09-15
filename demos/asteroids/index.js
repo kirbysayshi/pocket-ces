@@ -429,7 +429,7 @@ pkt.system(
 
 pkt.system(
   'asteroid-projectile-collider',
-  ['point-shape', 'verlet-position', 'rotation', 'asteroid'],
+  ['point-shape', 'verlet-position', 'rotation', 'ship'],
   function(pkt, keys, shapes, positions, rotations) {
 
     var projectiles = pkt.keysMatching(

@@ -26,12 +26,15 @@ module.exports = function(pkt, x, y) {
 
   return pkt.key({
     'asteroid': null,
+    'human-controlled-01': null,
+    'thrust': null,
+    'projectile-launcher': { launchForce: 10 },
     'verlet-position': {
       x: x,
       y: y,
       acel: v2(acelX, acelY) },
     'point-shape': { points: points },
     'bbox': null,
-    'rotation': null
+    'rotation': { rate: 0.1 }
   })
 }
