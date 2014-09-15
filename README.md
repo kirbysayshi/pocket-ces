@@ -22,6 +22,12 @@ You can run the asteroids example yourself by:
 
 And then visiting http://localhost:PORT/demos/asteroids/index.html (PORT is given in the console output).
 
+And if you want to run the "finished" example as seen at the end of the JSConf EU 2014 talk:
+
+- `git checkout jsconfeu-reworked`
+
+And refresh!
+
 [Developing Games Using Data not Trees]: http://2014.jsconf.eu/speakers/#/speakers/drew-petersen-developing-games-using-data-not-trees
 [asteroids example]: demos/asteroids/
 [Keynote]: https://github.com/kirbysayshi/pocket-ces/blob/master/doc/jsconfeu-2014/developing-games-using-data-not-trees.key.zip
