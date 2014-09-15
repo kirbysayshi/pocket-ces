@@ -96,8 +96,10 @@ pkt.cmpType('drag', function(cmp, opts) {
 
 pkt.cmpType('projectile-launcher', function(cmp, opts) {
   cmp.launchForce = opts.launchForce || 1;
-  cmp.limit = opts.limit || 10;
-  cmp.actives = []; // Maybe?
+})
+
+pkt.cmpType('lifespan', function(cmp, opts) {
+  cmp.life = opts.life || 60; // frames
 })
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -181,11 +183,22 @@ pkt.systemForEach(
           { x: -size, y: 0 },
           { x: 0, y: -size }
         ]},
+        'lifespan': { life: 60 * 3 },
         'bbox': null
       });
     }
   }
 )
+
+pkt.systemForEach(
+'time-is-death\s-best-friend',
+['lifespan'],
+function(pkt, key, lifespan) {
+  lifespan.life -= 1;
+  if (lifespan.life == 0) {
+    pkt.destroykey(key);
+  }
+})
 
 pkt.systemForEach(
   'apply-drag',
