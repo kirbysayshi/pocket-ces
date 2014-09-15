@@ -1,5 +1,5 @@
 module.exports = function(pkt, x, y, rad) {
-  return pkt.entity(null, {
+  return pkt.key({
     'verlet-position': { x: x, y: y },
     'radius': { rad: 20 },
     'collidable-group-a': null,

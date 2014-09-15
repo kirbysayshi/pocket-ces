@@ -196,7 +196,7 @@ pkt.systemForEach(
 function(pkt, key, lifespan) {
   lifespan.life -= 1;
   if (lifespan.life == 0) {
-    pkt.destroykey(key);
+    pkt.destroyKey(key);
   }
 })
 
@@ -474,8 +474,8 @@ pkt.system(
       }
 
       if (isHit) {
-        pkt.destroykey(asteroid);
-        pkt.destroykey(projectile);
+        pkt.destroyKey(asteroid);
+        pkt.destroyKey(projectile);
       }
     }
   }
@@ -549,4 +549,4 @@ pkt.tick(16);
 window.pkt = pkt;
 pkt.go = function() {
   (function yeah() { pkt.tick(16); requestAnimationFrame(yeah) }())
-}()
+}

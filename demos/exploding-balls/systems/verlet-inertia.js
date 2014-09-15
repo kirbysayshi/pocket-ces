@@ -2,7 +2,7 @@ var v2 = require('../../v2');
 
 exports.name = 'verlet-inertia';
 exports.reqs = ['verlet-position'];
-exports.actionEach = function(pkt, entity, cmp) {
+exports.actionEach = function(pkt, key, cmp) {
   var x = cmp.cpos.x*2 - cmp.ppos.x
     , y = cmp.cpos.y*2 - cmp.ppos.y;
 

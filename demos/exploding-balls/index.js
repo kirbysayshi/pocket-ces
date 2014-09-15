@@ -31,12 +31,12 @@ var c2 = CircleEntity(p, 150, 50, 30);
 var c3 = CircleEntity(p, 250, 50, 30);
 
 // Create the "singleton" entity for managing our context.
-p.entity(null, { 'ctx-2d': null })
+p.key({ 'ctx-2d': null })
 
 
 p.tick(16);
 
-window.p = p;
-p.go = function() {
+window.pkt = p;
+pkt.go = function() {
   (function yeah() { p.tick(16); requestAnimationFrame(yeah) }())
 }

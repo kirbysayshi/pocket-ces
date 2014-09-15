@@ -12,7 +12,7 @@ module.exports = function(pkt, x, y, numParticles, force) {
     forceY = force - (Math.random() * force * 5/6);
     acel = v2(Math.cos(theta) * forceX, Math.sin(theta) * forceY);
 
-    pkt.entity(null, {
+    pkt.key({
       'verlet-position': { x: x, y: y, acel: acel },
       'timed-life': { lifespan: 240 },
       'particle-explosion-fragment': null

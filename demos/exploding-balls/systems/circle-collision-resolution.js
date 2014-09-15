@@ -5,27 +5,27 @@ module.exports = function(preserveInertia, damping) {
   var reqs = ['radius', 'verlet-position', 'collision-information', 'collidable-group-a'];
   return { name: name, reqs: reqs, action: action }
 
-  function action(pkt, entities, circles, positions, detectionData) {
+  function action(pkt, keys, circles, positions, detectionData) {
 
     var handled = {};
     var dataA;
-    var entityA, entityB;
+    var keyA, keyB;
 
-    for (var i = 0; i < entities.length; i++) {
-      entityA = entities[i];
-      dataA = detectionData[entityA.id];
+    for (var i = 0; i < keys.length; i++) {
+      keyA = keys[i];
+      dataA = detectionData[keyA];
 
       for (var j = 0; j < dataA.collidingWith.length; j++) {
-        entityB = dataA.collidingWith[j];
+        keyB = dataA.collidingWith[j];
 
-        if (handled[entityA.id + '::' + entityB.id]) continue;
-        handled[entityA.id + '::' + entityB.id] = true;
+        if (handled[keyA + '::' + keyB]) continue;
+        handled[keyA + '::' + keyB] = true;
 
         resolve(
-          positions[entityA.id],
-          positions[entityB.id],
-          circles[entityA.id],
-          circles[entityB.id]
+          positions[keyA],
+          positions[keyB],
+          circles[keyA],
+          circles[keyB]
         );
       }
     }
