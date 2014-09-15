@@ -4,8 +4,8 @@ var p = new Pocket();
 //
 // components
 //
-p.cmp('ctx', function(cmp, opts) {
-    
+p.cmpType('ctx', function(cmp, opts) {
+
   // a little css
   var style = document.createElement('style');
   style.type = 'text/css';
@@ -42,14 +42,14 @@ p.cmp('ctx', function(cmp, opts) {
     cmp.cvs.getContext('2d').scale(ratio,ratio);
   }
 
-  cmp.center = { 
+  cmp.center = {
     x: (dpr !== bsr) ? cmp.cvs.width / 4  : cmp.cvs.width / 2,
     y: (dpr !== bsr) ? cmp.cvs.height / 4 : cmp.cvs.height / 2
   }
- 
+
 });
 
-p.cmp('input-manager', function(cmp, opts) {
+p.cmpType('input-manager', function(cmp, opts) {
 
   cmp.pressed = {};
   document.addEventListener("keydown", keydown, false);
@@ -64,7 +64,7 @@ p.cmp('input-manager', function(cmp, opts) {
 
 });
 
-p.cmp('position', function(cmp, opts) {
+p.cmpType('position', function(cmp, opts) {
   cmp.pos = {
     x: opts.x || p.firstData('ctx').center.x,
     y: opts.y || p.firstData('ctx').center.y
@@ -73,28 +73,28 @@ p.cmp('position', function(cmp, opts) {
   cmp.acc = {x: 0, y: 0};
 });
 
-p.cmp('shape', function(cmp, opts) {
+p.cmpType('shape', function(cmp, opts) {
   cmp.width = opts.width || 20;
   cmp.height = opts.height || 100;
 });
 
-p.cmp('color', function(cmp, opts) {
+p.cmpType('color', function(cmp, opts) {
   cmp.fillStyle = opts.color || "#333333";
 });
 
-p.cmp('thrust', function(cmp, opts) {
+p.cmpType('thrust', function(cmp, opts) {
   cmp.value = opts.accel || 0.002;
 });
 
 //
-// entities
+// keys
 //
 
 // rendering context and DOM setup
-p.entity(null, { 'ctx' : null });
+p.key({ 'ctx' : null });
 
 // player 1
-p.entity(null, { 
+p.key({
   'color': { color: '#00bfff' },
   'input-manager' : null,
   'position': { x : 20 },
@@ -104,7 +104,7 @@ p.entity(null, {
 });
 
 // player 2
-p.entity(null, {
+p.key({
   'color': { color: "#ffb05c" },
   'input-manager' : null,
   'position': { x : ((p.firstData('ctx').cvs.width/2) - 40) },
@@ -119,63 +119,63 @@ p.entity(null, {
 p.sysFromObj({
   name : 'input-accelerate',
   reqs :['position', 'thrust', 'player-controlled'],
-  action : function(pkt, entities, positions, thrusts) {
+  action : function(pkt, keys, positions, thrusts) {
 
-    var player1 = entities[0],
-        player2 = entities[1],
+    var player1 = keys[0],
+        player2 = keys[1],
         input = pkt.firstData('input-manager');
 
     // up - w
     if (input.pressed[87]) {
-      positions[player1.id].acc.y = -thrusts[player1.id].value;
+      positions[player1].acc.y = -thrusts[player1].value;
     }
 
     // down - s
     else if (input.pressed[83]) {
-      positions[player1.id].acc.y = thrusts[player1.id].value;
+      positions[player1].acc.y = thrusts[player1].value;
     }
 
     // left - a
     else if (input.pressed[65]) {
-      positions[player1.id].acc.x = -thrusts[player1.id].value; 
+      positions[player1].acc.x = -thrusts[player1].value;
     }
 
     // right - d
-    else if (input.pressed[68]) { 
-      positions[player1.id].acc.x = thrusts[player1.id].value; 
+    else if (input.pressed[68]) {
+      positions[player1].acc.x = thrusts[player1].value;
     }
     else {
-      positions[player1.id].vel.x = 0;
-      positions[player1.id].vel.y = 0;
-      positions[player1.id].acc.x = 0; 
-      positions[player1.id].acc.y = 0; 
+      positions[player1].vel.x = 0;
+      positions[player1].vel.y = 0;
+      positions[player1].acc.x = 0;
+      positions[player1].acc.y = 0;
     }
 
     // up - i
     if (input.pressed[73]) {
-      positions[player2.id].acc.y = -thrusts[player2.id].value;
+      positions[player2].acc.y = -thrusts[player2].value;
     }
 
     // down - k
     else if (input.pressed[75]) {
-      positions[player2.id].acc.y = thrusts[player2.id].value;
+      positions[player2].acc.y = thrusts[player2].value;
     }
 
     // left - j
     else if (input.pressed[74]) {
-      positions[player2.id].acc.x = -thrusts[player2.id].value;
+      positions[player2].acc.x = -thrusts[player2].value;
     }
 
     // right - l
     else if (input.pressed[76]){
-      positions[player2.id].acc.x = thrusts[player2.id].value;
+      positions[player2].acc.x = thrusts[player2].value;
     }
     else {
-      positions[player2.id].vel.x = 0;
-      positions[player2.id].acc.x = 0;
-      positions[player2.id].vel.y = 0;
-      positions[player2.id].acc.y = 0;
-    }  
+      positions[player2].vel.x = 0;
+      positions[player2].acc.x = 0;
+      positions[player2].vel.y = 0;
+      positions[player2].acc.y = 0;
+    }
 
   }
 });
@@ -184,7 +184,7 @@ p.sysFromObj({
 p.sysFromObj({
   name : 'handle-movement',
   reqs : ['position'],
-  actionEach : function(pkt, entities, pos) {
+  actionEach : function(pkt, keys, pos) {
     pos.vel.y += pos.acc.y * pkt.dt;
     pos.vel.x += pos.acc.x * pkt.dt;
     pos.pos.y += pos.acc.y * Math.pow(pkt.dt,2) + pos.vel.y * pkt.dt;
@@ -196,7 +196,7 @@ p.sysFromObj({
 p.sysFromObj({
   name : 'physics-bounds-check',
   reqs : ['position', 'shape'],
-  actionEach : function(pkt, entities, position, shape) {
+  actionEach : function(pkt, keys, position, shape) {
     var cmp = pkt.firstData('ctx'),
       max_width = cmp.cvs.width / 2,
       max_height = cmp.cvs.height / 2;
@@ -236,7 +236,7 @@ p.sysFromObj({
 p.sysFromObj({
   name : 'renderer-draw',
   reqs : ['position', 'shape', 'color'],
-  actionEach : function(pkt, entities, position, shape, color) {
+  actionEach : function(pkt, keys, position, shape, color) {
     var c = pkt.firstData('ctx');
 
     c.ctx.beginPath();
@@ -248,7 +248,7 @@ p.sysFromObj({
 
 p.tick(16);
 
-(function num1() { 
+(function num1() {
   requestAnimationFrame(num1);
   p.tick(16);
 })();
