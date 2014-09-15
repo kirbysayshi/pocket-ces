@@ -14,6 +14,14 @@ The [asteroids example][] is relatively complete. For more details, see the slid
 - [Keynote][]
 - [SpeakerDeck][] (PDF)
 
+You can run the asteroids example yourself by:
+
+- clone this repo
+- `npm install`
+- `npm run demos`
+
+And then visiting http://localhost:PORT/demos/asteroids/index.html (PORT is given in the console output).
+
 [Developing Games Using Data not Trees]: http://2014.jsconf.eu/speakers/#/speakers/drew-petersen-developing-games-using-data-not-trees
 [asteroids example]: demos/asteroids/
 [Keynote]: https://github.com/kirbysayshi/pocket-ces/blob/master/doc/jsconfeu-2014/developing-games-using-data-not-trees.key.zip
