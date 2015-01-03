@@ -17,6 +17,7 @@ The [asteroids example][] is relatively complete. For more details, see the slid
 You can run the asteroids example yourself by:
 
 - clone this repo
+- `git checkout jsconfeu`
 - `npm install`
 - `npm run demos`
 
