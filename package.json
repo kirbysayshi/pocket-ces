@@ -13,6 +13,7 @@
     "entity",
     "system"
   ],
+  "repository": "kirbysayshi/pocket-ces",
   "author": "Drew Petersen <kirbysayshi@gmail.com>",
   "license": "MIT",
   "devDependencies": {
